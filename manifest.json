@@ -1,0 +1,44 @@
+{
+    "manifest_version": 3,
+    "name": "Feishu Docs Theme Tuner",
+    "version": "1.0",
+    "description": "为飞书文档创建自定义主题，支持护眼配色方案",
+    "permissions": [
+        "activeTab",
+        "scripting",
+        "storage"
+    ],
+    "host_permissions": [
+        "https://*.feishu.cn/*",
+        "https://*.feishu.com/*",
+        "https://*.larksuite.com/*"
+    ],
+    "action": {
+        "default_popup": "popup.html",
+        "default_title": "飞书文档主题助手"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "https://*.feishu.cn/*",
+                "https://*.feishu.com/*",
+                "https://*.larksuite.com/*"
+            ],
+            "css": [
+                "css/material-colors.min.css",
+                "css/style.css"
+            ],
+            "js": ["js/main.js"],
+            "run_at": "document_end",
+            "all_frames": true
+        }
+    ],
+    "web_accessible_resources": [{
+        "resources": ["css/*"],
+        "matches": [
+            "https://*.feishu.cn/*",
+            "https://*.feishu.com/*",
+            "https://*.larksuite.com/*"
+        ]
+    }]
+}

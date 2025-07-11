@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>飞书文档主题助手</title>
+    <link rel="stylesheet" href="css/material-colors.min.css">
+    <link rel="stylesheet" href="css/popup.css">
+</head>
+<body>
+    <div class="container">
+        <h2>飞书文档主题助手</h2>
+        
+        <div class="theme-presets">
+            <h3>预设主题</h3>
+            <button class="preset-btn" data-theme="soft-beige">浅杏主题</button>
+            <button class="preset-btn" data-theme="warm-beige-1">米色主题</button>
+            <button class="preset-btn" data-theme="warm-beige-2">纸张主题</button>
+            <button class="preset-btn" data-theme="warm-eye">暖色护眼</button>
+            <button class="preset-btn" data-theme="cool-eye">冷色护眼</button>
+            <button class="preset-btn" data-theme="natural">自然色</button>
+        </div>
+
+        <div class="color-picker">
+            <h3>自定义颜色</h3>
+            <div class="color-group">
+                <label>主色调</label>
+                <input type="color" id="primary-color" value="#F5DEB3">
+            </div>
+            <div class="color-group">
+                <label>背景色</label>
+                <input type="color" id="background-color" value="#FDFBF7">
+            </div>
+            <div class="color-group">
+                <label>文字颜色</label>
+                <input type="color" id="text-color" value="#333333">
+            </div>
+        </div>
+
+        <div class="preview">
+            <h3>预览</h3>
+            <div class="preview-box">
+                <p>这是预览文本</p>
+                <div class="preview-content">
+                    <h4>标题示例</h4>
+                    <p>正文示例文本</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button id="apply-btn">应用主题</button>
+            <button id="reset-btn">重置</button>
+        </div>
+    </div>
+    <script src="js/popup.js"></script>
+</body>
+</html> 
