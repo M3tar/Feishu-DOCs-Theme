@@ -193,6 +193,27 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             return true;
         }
         
+        // 处理启用/禁用请求
+        if (request.action === 'disable') {
+            const oldStyle = document.getElementById('feishu-theme');
+            if (oldStyle) {
+                oldStyle.remove();
+            }
+            // 停止观察器
+            if (window._themeObserver) {
+                window._themeObserver.disconnect();
+                delete window._themeObserver;
+            }
+            sendResponse({success: true});
+            return true;
+        }
+
+        if (request.action === 'enable') {
+            // 恢复主题将通过后续的 applyTheme 消息处理
+            sendResponse({success: true});
+            return true;
+        }
+        
         if (request.action === 'applyTheme') {
             let success = false;
             if (request.preset && THEMES[request.preset]) {

@@ -6,6 +6,67 @@ document.addEventListener('DOMContentLoaded', () => {
     const applyButton = document.getElementById('apply-btn');
     const resetButton = document.getElementById('reset-btn');
     const previewBox = document.querySelector('.preview-box');
+    const pluginToggle = document.getElementById('plugin-toggle');
+
+    // 初始化插件状态
+    async function initializePluginState() {
+        const { enabled = true } = await chrome.storage.local.get('enabled');
+        pluginToggle.checked = enabled;
+        document.body.classList.toggle('plugin-disabled', !enabled);
+        updatePluginState(enabled);
+    }
+
+    // 更新插件状态
+    async function updatePluginState(enabled) {
+        try {
+            await chrome.storage.local.set({ enabled });
+            
+            // 获取当前标签页
+            const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+            const currentTab = tabs[0];
+            
+            if (currentTab?.url?.includes('feishu')) {
+                // 确保content script已注入
+                const injected = await ensureContentScriptInjected(currentTab);
+                if (!injected) {
+                    console.warn('无法注入content script，将在页面刷新后生效');
+                    return;
+                }
+
+                try {
+                    // 通知content script更新状态
+                    await chrome.tabs.sendMessage(currentTab.id, {
+                        action: enabled ? 'enable' : 'disable'
+                    });
+
+                    if (enabled) {
+                        // 如果启用插件，恢复上次的主题
+                        const result = await chrome.storage.local.get(['lastTheme', 'lastPreset']);
+                        if (result.lastPreset) {
+                            await applyPresetTheme(result.lastPreset);
+                        } else if (result.lastTheme) {
+                            // 恢复自定义颜色
+                            primaryColorInput.value = result.lastTheme.primary;
+                            backgroundColorInput.value = result.lastTheme.background;
+                            textColorInput.value = result.lastTheme.text;
+                            updatePreview();
+                            await applyCustomTheme();
+                        }
+                    } else {
+                        // 如果禁用插件，恢复默认配置
+                        await resetTheme();
+                    }
+                } catch (messageError) {
+                    // 如果发送消息失败，可能是页面刚刚加载或刷新
+                    console.warn('无法与页面通信，请刷新页面后重试');
+                    // 不抛出错误，让用户刷新页面后重试
+                }
+            }
+        } catch (error) {
+            console.error('更新插件状态时出错:', error);
+            // 不要显示错误提示，因为这可能只是暂时的连接问题
+        }
+    }
 
     // 更新预览
     function updatePreview() {
@@ -46,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const url = new URL(currentTab.url);
             if (!url.hostname.includes('feishu')) {
                 showNonFeishuUI();
-                throw new Error('非飞书页面');
+                return null;
             }
             return currentTab;
         } catch (error) {
@@ -86,11 +147,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     files: ['css/material-colors.min.css', 'css/style.css']
                 });
                 
+                // 等待一小段时间确保脚本加载
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
                 // 再次尝试发送ping消息确认注入成功
                 await chrome.tabs.sendMessage(tab.id, { action: 'ping' });
                 return true;
             } catch (injectionError) {
-                console.error('注入脚本时出错:', injectionError);
+                console.warn('注入脚本时出错:', injectionError);
                 return false;
             }
         }
@@ -186,7 +250,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (response?.success) {
-                await chrome.storage.local.remove(['lastTheme', 'lastPreset']);
+                // 不要在禁用状态下清除lastTheme和lastPreset
+                if (pluginToggle.checked) {
+                    await chrome.storage.local.remove(['lastTheme', 'lastPreset']);
+                }
                 // 重置自定义颜色输入
                 primaryColorInput.value = '#F5DEB3';
                 backgroundColorInput.value = '#FDFBF7';
@@ -202,15 +269,24 @@ document.addEventListener('DOMContentLoaded', () => {
     // 初始化插件
     async function initializePlugin() {
         try {
+            // 初始化插件状态
+            await initializePluginState();
+
             const currentTab = await checkCurrentTab();
             if (!currentTab) {
                 return;
             }
 
             // 事件监听器
+            pluginToggle.addEventListener('change', (e) => {
+                const enabled = e.target.checked;
+                document.body.classList.toggle('plugin-disabled', !enabled);
+                updatePluginState(enabled);
+            });
+
             primaryColorInput.addEventListener('input', () => {
                 updatePreview();
-                resetPresetButtonStates(); // 清除预设主题的选中状态
+                resetPresetButtonStates();
             });
             backgroundColorInput.addEventListener('input', () => {
                 updatePreview();
@@ -234,16 +310,19 @@ document.addEventListener('DOMContentLoaded', () => {
             updatePreview();
 
             // 恢复上次使用的主题
-            const result = await chrome.storage.local.get(['lastTheme', 'lastPreset']);
-            if (result.lastPreset) {
-                updatePresetButtonStates(result.lastPreset);
-                await applyPresetTheme(result.lastPreset);
-            } else if (result.lastTheme) {
-                primaryColorInput.value = result.lastTheme.primary;
-                backgroundColorInput.value = result.lastTheme.background;
-                textColorInput.value = result.lastTheme.text;
-                updatePreview();
-                await applyCustomTheme();
+            const { enabled } = await chrome.storage.local.get('enabled');
+            if (enabled) {
+                const result = await chrome.storage.local.get(['lastTheme', 'lastPreset']);
+                if (result.lastPreset) {
+                    updatePresetButtonStates(result.lastPreset);
+                    await applyPresetTheme(result.lastPreset);
+                } else if (result.lastTheme) {
+                    primaryColorInput.value = result.lastTheme.primary;
+                    backgroundColorInput.value = result.lastTheme.background;
+                    textColorInput.value = result.lastTheme.text;
+                    updatePreview();
+                    await applyCustomTheme();
+                }
             }
         } catch (error) {
             console.error('初始化插件时出错:', error);
