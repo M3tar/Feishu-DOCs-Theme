@@ -10,46 +10,74 @@
     <div class="container">
         <h2>飞书文档主题助手</h2>
         
-        <div class="theme-presets">
+        <section class="section theme-presets">
             <h3>预设主题</h3>
-            <button class="preset-btn" data-theme="soft-beige">浅杏主题</button>
-            <button class="preset-btn" data-theme="warm-beige-1">米色主题</button>
-            <button class="preset-btn" data-theme="warm-beige-2">纸张主题</button>
-            <button class="preset-btn" data-theme="warm-eye">暖色护眼</button>
-            <button class="preset-btn" data-theme="cool-eye">冷色护眼</button>
-            <button class="preset-btn" data-theme="natural">自然色</button>
-        </div>
+            <div class="preset-grid">
+                <button class="preset-btn" data-theme="soft-beige">
+                    <span class="theme-name">浅杏主题</span>
+                    <span class="theme-preview" style="background: #FEF9EF"></span>
+                </button>
+                <button class="preset-btn" data-theme="warm-beige-1">
+                    <span class="theme-name">米色主题</span>
+                    <span class="theme-preview" style="background: #FAF5E9"></span>
+                </button>
+                <button class="preset-btn" data-theme="warm-beige-2">
+                    <span class="theme-name">纸张主题</span>
+                    <span class="theme-preview" style="background: #F9F2E2"></span>
+                </button>
+                <button class="preset-btn" data-theme="warm-eye">
+                    <span class="theme-name">暖色护眼</span>
+                    <span class="theme-preview" style="background: #FDFBF7"></span>
+                </button>
+                <button class="preset-btn" data-theme="cool-eye">
+                    <span class="theme-name">冷色护眼</span>
+                    <span class="theme-preview" style="background: #F5F9F5"></span>
+                </button>
+                <button class="preset-btn" data-theme="natural">
+                    <span class="theme-name">自然色</span>
+                    <span class="theme-preview" style="background: #FAF9F6"></span>
+                </button>
+            </div>
+        </section>
 
-        <div class="color-picker">
+        <section class="section color-picker">
             <h3>自定义颜色</h3>
             <div class="color-group">
-                <label>主色调</label>
+                <label for="primary-color">
+                    <span>主色调</span>
+                    <span class="color-desc">用于标题和重点内容</span>
+                </label>
                 <input type="color" id="primary-color" value="#F5DEB3">
             </div>
             <div class="color-group">
-                <label>背景色</label>
+                <label for="background-color">
+                    <span>背景色</span>
+                    <span class="color-desc">整体页面背景</span>
+                </label>
                 <input type="color" id="background-color" value="#FDFBF7">
             </div>
             <div class="color-group">
-                <label>文字颜色</label>
+                <label for="text-color">
+                    <span>文字颜色</span>
+                    <span class="color-desc">正文内容颜色</span>
+                </label>
                 <input type="color" id="text-color" value="#333333">
             </div>
-        </div>
+        </section>
 
-        <div class="preview">
-            <h3>预览</h3>
+        <section class="section preview">
+            <h3>主题预览</h3>
             <div class="preview-box">
-                <p>这是预览文本</p>
                 <div class="preview-content">
-                    <h4>标题示例</h4>
-                    <p>正文示例文本</p>
+                    <h4>飞书文档主题预览</h4>
+                    <p>这是一段示例文本，用于预览主题效果。您可以通过这个预览来确认文字的清晰度和整体的视觉效果。</p>
                 </div>
             </div>
-        </div>
+        </section>
 
         <div class="actions">
             <button id="apply-btn">应用主题</button>
-            <button id="reset-btn">重置</button>
+            <button id="reset-btn">恢复默认</button>
         </div>
     </div>
     <script src="js/popup.js"></script>

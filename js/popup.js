@@ -18,6 +18,24 @@ document.addEventListener('DOMContentLoaded', () => {
         previewBox.style.setProperty('--preview-primary', primary);
     }
 
+    // 更新主题按钮状态
+    function updatePresetButtonStates(activePreset) {
+        presetButtons.forEach(button => {
+            if (button.dataset.theme === activePreset) {
+                button.classList.add('active');
+            } else {
+                button.classList.remove('active');
+            }
+        });
+    }
+
+    // 重置主题按钮状态
+    function resetPresetButtonStates() {
+        presetButtons.forEach(button => {
+            button.classList.remove('active');
+        });
+    }
+
     // 检查当前标签页是否是飞书文档
     async function checkCurrentTab() {
         try {
@@ -27,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const url = new URL(currentTab.url);
             if (!url.hostname.includes('feishu')) {
+                showNonFeishuUI();
                 throw new Error('非飞书页面');
             }
             return currentTab;
@@ -34,6 +53,15 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('检查标签页时出错:', error);
             return null;
         }
+    }
+
+    // 显示非飞书文档页面的UI
+    function showNonFeishuUI() {
+        document.body.classList.add('non-feishu');
+        document.querySelector('.container').innerHTML = `
+            <h2>飞书文档主题助手</h2>
+            <p>请在飞书文档页面使用此插件</p>
+        `;
     }
 
     // 检查content script是否已注入
@@ -118,6 +146,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            // 更新按钮状态
+            updatePresetButtonStates(presetName);
+
             const response = await chrome.tabs.sendMessage(currentTab.id, {
                 action: 'applyTheme',
                 preset: presetName
@@ -147,12 +178,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            // 重置按钮状态
+            resetPresetButtonStates();
+
             const response = await chrome.tabs.sendMessage(currentTab.id, {
                 action: 'reset'
             });
 
             if (response?.success) {
                 await chrome.storage.local.remove(['lastTheme', 'lastPreset']);
+                // 重置自定义颜色输入
+                primaryColorInput.value = '#F5DEB3';
+                backgroundColorInput.value = '#FDFBF7';
+                textColorInput.value = '#333333';
+                updatePreview();
             }
         } catch (error) {
             console.error('重置主题时出错:', error);
@@ -165,14 +204,22 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const currentTab = await checkCurrentTab();
             if (!currentTab) {
-                document.body.innerHTML = '<div class="error-message">请在飞书文档页面使用此插件</div>';
                 return;
             }
 
             // 事件监听器
-            primaryColorInput.addEventListener('input', updatePreview);
-            backgroundColorInput.addEventListener('input', updatePreview);
-            textColorInput.addEventListener('input', updatePreview);
+            primaryColorInput.addEventListener('input', () => {
+                updatePreview();
+                resetPresetButtonStates(); // 清除预设主题的选中状态
+            });
+            backgroundColorInput.addEventListener('input', () => {
+                updatePreview();
+                resetPresetButtonStates();
+            });
+            textColorInput.addEventListener('input', () => {
+                updatePreview();
+                resetPresetButtonStates();
+            });
             applyButton.addEventListener('click', applyCustomTheme);
             resetButton.addEventListener('click', resetTheme);
 
@@ -189,6 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // 恢复上次使用的主题
             const result = await chrome.storage.local.get(['lastTheme', 'lastPreset']);
             if (result.lastPreset) {
+                updatePresetButtonStates(result.lastPreset);
                 await applyPresetTheme(result.lastPreset);
             } else if (result.lastTheme) {
                 primaryColorInput.value = result.lastTheme.primary;
@@ -199,7 +247,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error('初始化插件时出错:', error);
-            document.body.innerHTML = '<div class="error-message">插件初始化失败，请刷新页面后重试</div>';
         }
     }
 

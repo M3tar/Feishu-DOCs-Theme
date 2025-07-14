@@ -1,118 +1,285 @@
 body {
-    width: 320px;
+    width: 360px;
     margin: 0;
-    padding: 15px;
+    padding: 20px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background: #f5f5f7;
 }
 
 .container {
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 24px;
 }
 
 h2 {
-    margin: 0 0 15px;
-    color: #333;
-    font-size: 18px;
+    margin: 0 0 32px;
+    color: #1d1d1f;
+    font-size: 24px;
     text-align: center;
+    font-weight: 600;
+    letter-spacing: -0.022em;
+}
+
+.section {
+    margin-bottom: 32px;
+    padding: 20px;
+    background: #fbfbfd;
+    border-radius: 16px;
+    border: 1px solid #e8e8ed;
+    transition: all 0.3s ease;
+}
+
+.section:hover {
+    border-color: #d2d2d7;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.section:last-child {
+    margin-bottom: 24px;
 }
 
 h3 {
-    margin: 10px 0;
-    color: #666;
-    font-size: 14px;
+    margin: 0 0 20px;
+    color: #1d1d1f;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.022em;
+    display: flex;
+    align-items: center;
 }
 
-.theme-presets {
-    margin-bottom: 20px;
+h3::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 16px;
+    background: #0071e3;
+    border-radius: 2px;
+    margin-right: 8px;
+}
+
+.preset-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
 }
 
 .preset-btn {
-    display: inline-block;
-    margin: 5px;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 4px;
-    background: #f0f0f0;
-    color: #333;
+    position: relative;
+    padding: 14px 12px;
+    border: 1px solid #e8e8ed;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #1d1d1f;
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.theme-name {
+    display: block;
+    margin-right: 20px;
+}
+
+.theme-preview {
+    display: block;
+    width: 100%;
+    height: 24px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
 }
 
 .preset-btn:hover {
-    background: #e0e0e0;
+    border-color: #0071e3;
+    background: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.color-picker {
-    margin-bottom: 20px;
+.preset-btn:hover .theme-preview {
+    transform: scale(1.02);
+}
+
+.preset-btn.active {
+    border-color: #0071e3;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
+}
+
+.preset-btn.active::after {
+    content: "✓";
+    position: absolute;
+    top: 12px;
+    right: 10px;
+    color: #0071e3;
+    font-weight: bold;
 }
 
 .color-group {
     display: flex;
     align-items: center;
-    margin: 10px 0;
+    margin: 16px 0;
+    padding: 12px;
+    background: #ffffff;
+    border-radius: 10px;
+    border: 1px solid #e8e8ed;
+    transition: all 0.3s ease;
+}
+
+.color-group:hover {
+    border-color: #0071e3;
+    transform: translateY(-1px);
+}
+
+.color-group:first-child {
+    margin-top: 0;
+}
+
+.color-group:last-child {
+    margin-bottom: 0;
 }
 
 .color-group label {
     flex: 1;
-    margin-right: 10px;
-    color: #666;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.color-group label span:first-child {
+    color: #1d1d1f;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.color-desc {
+    color: #86868b;
+    font-size: 12px;
+    font-weight: normal;
 }
 
 input[type="color"] {
-    width: 50px;
-    height: 30px;
-    padding: 0;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    width: 64px;
+    height: 36px;
+    padding: 2px;
+    border: 1px solid #e8e8ed;
+    border-radius: 8px;
     cursor: pointer;
+    transition: all 0.3s ease;
+    background: #ffffff;
 }
 
-.preview {
-    margin-bottom: 20px;
+input[type="color"]:hover {
+    border-color: #0071e3;
+    transform: scale(1.02);
 }
 
 .preview-box {
-    padding: 15px;
-    border-radius: 6px;
+    padding: 20px;
+    border-radius: 12px;
     background: var(--preview-bg, #FDFBF7);
     color: var(--preview-text, #333);
+    border: 1px solid #e8e8ed;
+    transition: all 0.3s ease;
+}
+
+.preview-box:hover {
+    border-color: #0071e3;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .preview-content {
-    margin-top: 10px;
+    margin-top: 0;
 }
 
 .preview-content h4 {
-    margin: 0 0 8px;
+    margin: 0 0 12px;
     color: var(--preview-primary, #F5DEB3);
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.preview-content p {
+    margin: 0;
+    line-height: 1.5;
 }
 
 .actions {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     justify-content: center;
+    margin-top: 32px;
 }
 
 button {
-    padding: 8px 16px;
+    padding: 12px 24px;
     border: none;
-    border-radius: 4px;
-    background: #4A90E2;
+    border-radius: 12px;
+    background: #0071e3;
     color: white;
+    font-size: 15px;
+    font-weight: 500;
     cursor: pointer;
-    transition: background 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 button:hover {
-    background: #357ABD;
+    background: #0077ed;
+    transform: translateY(-1px);
 }
 
 #reset-btn {
-    background: #999;
+    background: #f5f5f7;
+    color: #1d1d1f;
+    border: 1px solid #e8e8ed;
 }
 
 #reset-btn:hover {
-    background: #777;
+    background: #f5f5f7;
+    border-color: #0071e3;
+}
+
+.error-message {
+    text-align: center;
+    color: #1d1d1f;
+    font-size: 15px;
+    padding: 20px;
+    background: #fbfbfd;
+    border-radius: 12px;
+    border: 1px solid #e8e8ed;
+    margin: 20px 0;
+}
+
+/* 非飞书文档页面的样式 */
+.non-feishu {
+    background: linear-gradient(180deg, #fbfbfd 0%, #ffffff 100%);
+}
+
+.non-feishu .container {
+    max-width: 600px;
+    margin: 40px auto;
+    text-align: center;
+    padding: 40px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px);
+    border: 1px solid #e8e8ed;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
+}
+
+.non-feishu h2 {
+    font-size: 28px;
+    margin-bottom: 16px;
+}
+
+.non-feishu p {
+    color: #86868b;
+    font-size: 17px;
+    line-height: 1.5;
+    margin: 0;
 } 
