@@ -4,12 +4,15 @@ body {
     padding: 20px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     background: #f5f5f7;
+    box-sizing: border-box;
 }
 
 .container {
     background: #ffffff;
     border-radius: 16px;
     padding: 24px;
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .header {
@@ -200,12 +203,14 @@ h3::before {
 .color-group {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     margin: 16px 0;
     padding: 12px;
     background: #ffffff;
     border-radius: 10px;
     border: 1px solid #e8e8ed;
     transition: all 0.3s ease;
+    min-height: 44px;
 }
 
 .color-group:hover {
@@ -240,6 +245,7 @@ h3::before {
     font-weight: normal;
 }
 
+/* 基础样式 */
 input[type="color"] {
     width: 64px;
     height: 36px;
@@ -249,11 +255,86 @@ input[type="color"] {
     cursor: pointer;
     transition: all 0.3s ease;
     background: #ffffff;
+    outline: none;
+    position: relative;
+    box-sizing: border-box;
+    z-index: 1000;
+}
+
+/* 针对WebKit浏览器（Chrome）的优化 */
+input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: 4px;
+}
+
+/* 焦点和悬停状态 */
+input[type="color"]:focus {
+    border-color: #0071e3;
+    box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
+    z-index: 9999;
 }
 
 input[type="color"]:hover {
     border-color: #0071e3;
     transform: scale(1.02);
+    box-shadow: 0 2px 8px rgba(0, 113, 227, 0.1);
+}
+
+/* 多屏幕环境适配 */
+@media screen and (min-resolution: 1dppx) {
+    input[type="color"] {
+        width: 64px;
+        height: 36px;
+    }
+}
+
+/* 高分辨率屏幕适配 */
+@media screen and (min-resolution: 2dppx) {
+    input[type="color"] {
+        width: 68px;
+        height: 38px;
+    }
+}
+
+/* 外接显示器和大屏幕环境优化 */
+@media screen and (min-width: 1400px) {
+    input[type="color"] {
+        width: 70px;
+        height: 40px;
+        padding: 3px;
+    }
+    
+    .color-group {
+        position: relative;
+    }
+    
+    .color-group input[type="color"] {
+        position: relative;
+        transform-origin: right center;
+    }
+    
+    .color-group input[type="color"]:focus,
+    .color-group input[type="color"]:active {
+        transform: scale(1);
+        z-index: 9999;
+    }
+}
+
+/* 确保颜色选择器弹出层始终可见 */
+.color-group {
+    position: relative;
+    z-index: 1;
+}
+
+.color-group:focus-within {
+    z-index: 1001;
 }
 
 .preview-box {
@@ -276,7 +357,7 @@ input[type="color"]:hover {
 
 .preview-content h4 {
     margin: 0 0 12px;
-    color: var(--preview-primary, #F5DEB3);
+    color: var(--preview-text, #333);
     font-size: 16px;
     font-weight: 600;
 }

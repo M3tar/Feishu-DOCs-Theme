@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const primaryColorInput = document.getElementById('primary-color');
     const backgroundColorInput = document.getElementById('background-color');
     const textColorInput = document.getElementById('text-color');
     const presetButtons = document.querySelectorAll('.preset-btn');
@@ -46,7 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             await applyPresetTheme(result.lastPreset);
                         } else if (result.lastTheme) {
                             // 恢复自定义颜色
-                            primaryColorInput.value = result.lastTheme.primary;
                             backgroundColorInput.value = result.lastTheme.background;
                             textColorInput.value = result.lastTheme.text;
                             updatePreview();
@@ -70,13 +68,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 更新预览
     function updatePreview() {
-        const primary = primaryColorInput.value;
         const background = backgroundColorInput.value;
         const text = textColorInput.value;
 
         previewBox.style.setProperty('--preview-bg', background);
         previewBox.style.setProperty('--preview-text', text);
-        previewBox.style.setProperty('--preview-primary', primary);
     }
 
     // 更新主题按钮状态
@@ -176,7 +172,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const theme = {
-                primary: primaryColorInput.value,
                 background: backgroundColorInput.value,
                 text: textColorInput.value
             };
@@ -255,7 +250,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     await chrome.storage.local.remove(['lastTheme', 'lastPreset']);
                 }
                 // 重置自定义颜色输入
-                primaryColorInput.value = '#F5DEB3';
                 backgroundColorInput.value = '#FDFBF7';
                 textColorInput.value = '#333333';
                 updatePreview();
@@ -284,10 +278,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 updatePluginState(enabled);
             });
 
-            primaryColorInput.addEventListener('input', () => {
-                updatePreview();
-                resetPresetButtonStates();
-            });
             backgroundColorInput.addEventListener('input', () => {
                 updatePreview();
                 resetPresetButtonStates();
@@ -317,7 +307,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     updatePresetButtonStates(result.lastPreset);
                     await applyPresetTheme(result.lastPreset);
                 } else if (result.lastTheme) {
-                    primaryColorInput.value = result.lastTheme.primary;
                     backgroundColorInput.value = result.lastTheme.background;
                     textColorInput.value = result.lastTheme.text;
                     updatePreview();

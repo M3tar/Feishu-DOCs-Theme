@@ -26,7 +26,7 @@
     transform: scale(1.1);
 }
 
-/* 新增：处理文档白色背景区域 */
+/* 处理文档白色背景区域 */
 /* 左侧导航栏与文档内容之间的空白区域 */
 .lark-editor-sidebar {
     background-color: var(--custom-background-color, #fff) !important;
@@ -67,7 +67,7 @@
     background-color: var(--custom-background-color, #fff) !important;
 }
 
-/* 新增：处理page-main-item editor类 */
+/* 处理page-main-item editor类 */
 .page-main-item.editor {
     background-color: var(--custom-background-color, #fff) !important;
 }
@@ -78,56 +78,7 @@
     background-color: var(--custom-background-color, #fff) !important;
 }
 
-/* 新增：处理docx宽度模式下的页面主要内容区域 */
-.page-main.docx-width-mode.docx-width-mode-standard .page-main-item {
-    background-color: var(--custom-background-color, #fff) !important;
-}
-
-/* 确保docx模式下的所有子元素也使用主题颜色 */
-.page-main.docx-width-mode.docx-width-mode-standard .page-main-item > * {
-    background-color: var(--custom-background-color, #fff) !important;
-}
-
-/* 处理docx模式下的编辑器容器 */
-.page-main.docx-width-mode.docx-width-mode-standard .editor-container {
-    background-color: var(--custom-background-color, #fff) !important;
-}
-
-/* 新增：处理目录区域 */
-.catalogue.docx-width-mode,
-.catalogue.docx-width-mode .catalogue-content,
-.catalogue.docx-width-mode .catalogue-item {
-    background-color: var(--custom-background-color, #fff) !important;
-}
-
-/* 目录文本颜色 */
-.catalogue.docx-width-mode .catalogue-item-text {
-    color: var(--custom-text-color) !important;
-}
-
-/* 目录页码颜色 */
-.catalogue.docx-width-mode .catalogue-item-page {
-    color: var(--custom-text-color) !important;
-    opacity: 0.8;
-}
-
-/* 新增：处理特定类组合的页面区域 */
-.page-main.docx-width-mode-standard.synced-new-ui.synced-overflow-ui.uneditable.normal-font-size.docx-width-mode,
-.page-main.docx-width-mode-standard.synced-new-ui.synced-overflow-ui.uneditable.normal-font-size.docx-width-mode > * {
-    background-color: var(--custom-background-color, #fff) !important;
-}
-
-/* 确保该区域内的所有内容区块也使用主题颜色 */
-.page-main.docx-width-mode-standard.synced-new-ui.synced-overflow-ui.uneditable.normal-font-size.docx-width-mode .content-block {
-    background-color: var(--custom-background-color, #fff) !important;
-}
-
-/* 处理该区域内的文本颜色 */
-.page-main.docx-width-mode-standard.synced-new-ui.synced-overflow-ui.uneditable.normal-font-size.docx-width-mode .text-content {
-    color: var(--custom-text-color) !important;
-}
-
-/* 新增：处理目录滚动容器 */
+/* 处理目录滚动容器 */
 .scrollbar-container.catalogue__scroller.scrollbar-container-small.ps {
     background-color: var(--custom-background-color, #fff) !important;
 }
@@ -147,7 +98,7 @@
     border-radius: 3px;
 }
 
-/* 新增：处理wiki-md模式下的页面区域 */
+/* 处理wiki-md模式下的页面区域 */
 .page-main.docx-width-mode-standard.synced-new-ui.synced-overflow-ui.normal-font-size.docx-width-mode.page-main-in-wiki-md {
     background-color: var(--custom-background-color, #fff) !important;
 }
@@ -169,7 +120,7 @@
     opacity: 0.1;
 }
 
-/* 新增：处理目录列表 */
+/* 处理目录列表 */
 .catalogue__list.show-full {
     background-color: var(--custom-background-color, #fff) !important;
 }
@@ -177,22 +128,9 @@
 /* 目录列表项 */
 .catalogue__list.show-full .catalogue-item {
     background-color: var(--custom-background-color, #fff) !important;
-    color: var(--custom-text-color) !important;
 }
 
-/* 目录列表分隔线 */
-.catalogue__list.show-full .catalogue-item:not(:last-child) {
-    border-bottom-color: var(--custom-text-color, #333) !important;
-    opacity: 0.1;
-}
-
-/* 目录列表悬停效果 */
-.catalogue__list.show-full .catalogue-item:hover {
-    background-color: var(--custom-background-color, #fff) !important;
-    filter: brightness(0.95);
-}
-
-/* 新增：处理目录主包装器 */
+/* 处理目录主包装器 */
 .catalogue__main-wrapper {
     background-color: var(--custom-background-color, #fff) !important;
 }
@@ -200,11 +138,6 @@
 /* 目录主包装器内的所有元素 */
 .catalogue__main-wrapper * {
     background-color: var(--custom-background-color, #fff) !important;
-}
-
-/* 目录主包装器内的文本 */
-.catalogue__main-wrapper .catalogue-text {
-    color: var(--custom-text-color) !important;
 }
 
 /* 目录主包装器内的分隔线和边框 */
