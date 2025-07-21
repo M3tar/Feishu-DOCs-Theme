@@ -26,6 +26,22 @@ const THEMES = {
     }
 };
 
+// 获取所有主题（包括自定义主题）
+async function getAllThemes() {
+    const allThemes = { ...THEMES };
+    
+    try {
+        const result = await chrome.storage.local.get('customThemes');
+        if (result.customThemes) {
+            Object.assign(allThemes, result.customThemes);
+        }
+    } catch (error) {
+        console.error('获取自定义主题时出错:', error);
+    }
+    
+    return allThemes;
+}
+
 // 应用主题的函数
 function applyTheme(theme) {
     try {
@@ -156,8 +172,6 @@ function applyTheme(theme) {
     }
 }
 
-
-
 // 监听来自popup的消息
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     try {
@@ -189,13 +203,26 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         }
         
         if (request.action === 'applyTheme') {
-            let success = false;
-            if (request.preset && THEMES[request.preset]) {
-                success = applyTheme(THEMES[request.preset]);
-            } else if (request.customTheme) {
-                success = applyTheme(request.customTheme);
-            }
-            sendResponse({success});
+            // 异步处理主题应用
+            (async () => {
+                try {
+                    let success = false;
+                    if (request.preset) {
+                        // 获取所有主题（包括自定义主题）
+                        const allThemes = await getAllThemes();
+                        if (allThemes[request.preset]) {
+                            success = applyTheme(allThemes[request.preset]);
+                        }
+                    } else if (request.customTheme) {
+                        success = applyTheme(request.customTheme);
+                    }
+                    sendResponse({success});
+                } catch (error) {
+                    console.error('应用主题时出错:', error);
+                    sendResponse({success: false, error: error.message});
+                }
+            })();
+            return true; // 异步响应
         } else if (request.action === 'reset') {
             const oldStyle = document.getElementById('feishu-theme');
             if (oldStyle) {

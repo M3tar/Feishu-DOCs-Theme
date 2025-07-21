@@ -48,6 +48,7 @@
                     <span class="theme-name">自然色</span>
                     <span class="theme-preview" style="background: #FAF9F6"></span>
                 </button>
+                <!-- 自定义主题将动态插入到这里 -->
             </div>
         </section>
 
@@ -77,10 +78,25 @@
                     <p>这是一段示例文本，用于预览主题效果。您可以通过这个预览来确认文字的清晰度和整体的视觉效果。</p>
                 </div>
             </div>
+            
+            <div class="theme-actions">
+                <div class="theme-name-input">
+                    <label for="theme-name-input">
+                        <span class="label-main">主题名称</span>
+                        <span class="label-desc">（保存时使用）</span>
+                    </label>
+                    <input type="text" id="theme-name-input" placeholder="例如：杏仁拿铁主题" maxlength="10">
+                </div>
+                <div class="action-buttons">
+                    <button id="apply-btn" class="primary-btn">应用主题</button>
+                    <button id="save-only-btn" class="outline-btn">保存主题</button>
+                    <button id="save-apply-btn" class="success-btn">保存并应用</button>
+                </div>
+                <div class="save-theme-hint">最多可保存2个自定义主题</div>
+            </div>
         </section>
 
         <div class="actions">
-            <button id="apply-btn">应用主题</button>
             <button id="reset-btn">恢复默认</button>
         </div>
     </div>

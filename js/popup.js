@@ -2,10 +2,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const backgroundColorInput = document.getElementById('background-color');
     const textColorInput = document.getElementById('text-color');
     const presetButtons = document.querySelectorAll('.preset-btn');
+    const presetGrid = document.querySelector('.preset-grid');
     const applyButton = document.getElementById('apply-btn');
     const resetButton = document.getElementById('reset-btn');
     const previewBox = document.querySelector('.preview-box');
     const pluginToggle = document.getElementById('plugin-toggle');
+    const themeNameInput = document.getElementById('theme-name-input');
+    const saveOnlyButton = document.getElementById('save-only-btn');
+    const saveApplyButton = document.getElementById('save-apply-btn');
 
     // 初始化插件状态
     async function initializePluginState() {
@@ -13,6 +17,192 @@ document.addEventListener('DOMContentLoaded', () => {
         pluginToggle.checked = enabled;
         document.body.classList.toggle('plugin-disabled', !enabled);
         updatePluginState(enabled);
+    }
+
+    // 加载自定义主题
+    async function loadCustomThemes() {
+        try {
+            const result = await chrome.storage.local.get('customThemes');
+            const customThemes = result.customThemes || {};
+            
+            // 移除之前的自定义主题按钮
+            const existingCustomButtons = presetGrid.querySelectorAll('.preset-btn.custom-theme');
+            existingCustomButtons.forEach(button => button.remove());
+            
+            // 添加自定义主题按钮
+            Object.entries(customThemes).forEach(([themeId, theme]) => {
+                createCustomThemeButton(themeId, theme);
+            });
+            
+            // 更新保存按钮状态
+            updateSaveButtonState();
+        } catch (error) {
+            console.error('加载自定义主题时出错:', error);
+        }
+    }
+
+    // 创建自定义主题按钮
+    function createCustomThemeButton(themeId, theme) {
+        const button = document.createElement('button');
+        button.className = 'preset-btn custom-theme';
+        button.dataset.theme = themeId;
+        
+        button.innerHTML = `
+            <span class="theme-name">${theme.name}</span>
+            <span class="theme-preview" style="background: ${theme.background}"></span>
+            <button class="delete-btn" title="删除主题"></button>
+        `;
+        
+        // 添加点击事件
+        button.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('delete-btn')) {
+                applyPresetTheme(themeId);
+            }
+        });
+        
+        // 添加删除事件
+        const deleteBtn = button.querySelector('.delete-btn');
+        deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteCustomTheme(themeId);
+        });
+        
+        presetGrid.appendChild(button);
+    }
+
+    // 检查主题名称输入是否有效
+    function isThemeNameValid() {
+        const themeName = themeNameInput.value.trim();
+        return themeName.length > 0 && themeName.length <= 10;
+    }
+
+    // 更新保存按钮状态
+    async function updateSaveButtonState() {
+        try {
+            const result = await chrome.storage.local.get('customThemes');
+            const customThemes = result.customThemes || {};
+            const count = Object.keys(customThemes).length;
+            const nameValid = isThemeNameValid();
+            
+            // 检查是否已达到上限
+            const isLimitReached = count >= 2;
+            
+            // 检查主题名称是否重复
+            const themeName = themeNameInput.value.trim();
+            const existingNames = Object.values(customThemes).map(theme => theme.name);
+            const isDuplicate = existingNames.includes(themeName);
+            
+            const canSave = nameValid && !isLimitReached && !isDuplicate;
+            
+            saveOnlyButton.disabled = !canSave;
+            saveApplyButton.disabled = !canSave;
+            
+            const hintElement = document.querySelector('.save-theme-hint');
+            if (isLimitReached) {
+                hintElement.textContent = '已达到自定义主题上限（2个）';
+                hintElement.style.color = '#ff3b30';
+            } else if (isDuplicate && themeName) {
+                hintElement.textContent = '主题名称已存在';
+                hintElement.style.color = '#ff3b30';
+            } else {
+                hintElement.textContent = `最多可保存2个自定义主题（已保存${count}个）`;
+                hintElement.style.color = '#86868b';
+            }
+        } catch (error) {
+            console.error('更新保存按钮状态时出错:', error);
+        }
+    }
+
+    // 保存自定义主题
+    async function saveCustomTheme(shouldApply = false) {
+        const themeName = themeNameInput.value.trim();
+        if (!themeName) {
+            alert('请输入主题名称');
+            return;
+        }
+        
+        if (themeName.length > 10) {
+            alert('主题名称不能超过10个字符');
+            return;
+        }
+        
+        try {
+            const result = await chrome.storage.local.get('customThemes');
+            const customThemes = result.customThemes || {};
+            
+            // 检查是否已达到上限
+            if (Object.keys(customThemes).length >= 2) {
+                alert('最多只能保存2个自定义主题，请先删除一个主题');
+                return;
+            }
+            
+            // 检查主题名称是否重复
+            const existingNames = Object.values(customThemes).map(theme => theme.name);
+            if (existingNames.includes(themeName)) {
+                alert('主题名称已存在，请使用其他名称');
+                return;
+            }
+            
+            // 生成主题ID
+            const themeId = 'custom-' + Date.now();
+            
+            // 保存主题
+            const newTheme = {
+                name: themeName,
+                background: backgroundColorInput.value,
+                text: textColorInput.value
+            };
+            
+            customThemes[themeId] = newTheme;
+            await chrome.storage.local.set({ customThemes });
+            
+            // 清空输入框
+            themeNameInput.value = '';
+            
+            // 重新加载自定义主题
+            await loadCustomThemes();
+            
+            // 如果需要应用主题
+            if (shouldApply) {
+                await applyPresetTheme(themeId);
+                alert('主题保存并应用成功！');
+            } else {
+                alert('主题保存成功！');
+            }
+            
+        } catch (error) {
+            console.error('保存主题时出错:', error);
+            alert('保存主题失败，请重试');
+        }
+    }
+
+    // 删除自定义主题
+    async function deleteCustomTheme(themeId) {
+        if (!confirm('确定要删除这个主题吗？')) {
+            return;
+        }
+        
+        try {
+            const result = await chrome.storage.local.get('customThemes');
+            const customThemes = result.customThemes || {};
+            
+            delete customThemes[themeId];
+            
+            await chrome.storage.local.set({ customThemes });
+            
+            // 如果删除的是当前使用的主题，清除记录
+            const { lastPreset } = await chrome.storage.local.get('lastPreset');
+            if (lastPreset === themeId) {
+                await chrome.storage.local.remove('lastPreset');
+            }
+            
+            // 重新加载自定义主题
+            await loadCustomThemes();
+            
+        } catch (error) {
+            console.error('删除主题时出错:', error);
+            alert('删除主题失败，请重试');
+        }
     }
 
     // 更新插件状态
@@ -40,16 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     if (enabled) {
                         // 如果启用插件，恢复上次的主题
-                        const result = await chrome.storage.local.get(['lastTheme', 'lastPreset']);
-                        if (result.lastPreset) {
-                            await applyPresetTheme(result.lastPreset);
-                        } else if (result.lastTheme) {
-                            // 恢复自定义颜色
-                            backgroundColorInput.value = result.lastTheme.background;
-                            textColorInput.value = result.lastTheme.text;
-                            updatePreview();
-                            await applyCustomTheme();
-                        }
+                        await restoreLastTheme();
                     } else {
                         // 如果禁用插件，恢复默认配置
                         await resetTheme();
@@ -66,6 +247,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // 恢复上次使用的主题
+    async function restoreLastTheme() {
+        try {
+            const result = await chrome.storage.local.get(['lastTheme', 'lastPreset']);
+            if (result.lastPreset) {
+                updatePresetButtonStates(result.lastPreset);
+                await applyPresetTheme(result.lastPreset);
+            } else if (result.lastTheme) {
+                // 恢复自定义颜色
+                backgroundColorInput.value = result.lastTheme.background;
+                textColorInput.value = result.lastTheme.text;
+                updatePreview();
+                await applyCustomTheme();
+            }
+        } catch (error) {
+            console.error('恢复主题时出错:', error);
+        }
+    }
+
     // 更新预览
     function updatePreview() {
         const background = backgroundColorInput.value;
@@ -73,11 +273,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         previewBox.style.setProperty('--preview-bg', background);
         previewBox.style.setProperty('--preview-text', text);
+        
+        // 实时更新保存按钮状态
+        updateSaveButtonState();
     }
 
     // 更新主题按钮状态
     function updatePresetButtonStates(activePreset) {
-        presetButtons.forEach(button => {
+        const allPresetButtons = presetGrid.querySelectorAll('.preset-btn');
+        allPresetButtons.forEach(button => {
             if (button.dataset.theme === activePreset) {
                 button.classList.add('active');
             } else {
@@ -88,7 +292,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 重置主题按钮状态
     function resetPresetButtonStates() {
-        presetButtons.forEach(button => {
+        const allPresetButtons = presetGrid.querySelectorAll('.preset-btn');
+        allPresetButtons.forEach(button => {
             button.classList.remove('active');
         });
     }
@@ -183,6 +388,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (response?.success) {
                 await chrome.storage.local.set({lastTheme: theme});
+                await chrome.storage.local.remove('lastPreset'); // 清除预设主题记录
             }
         } catch (error) {
             console.error('应用主题时出错:', error);
@@ -215,6 +421,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (response?.success) {
                 await chrome.storage.local.set({lastPreset: presetName});
+                await chrome.storage.local.remove('lastTheme'); // 清除自定义主题记录
             }
         } catch (error) {
             console.error('应用预设主题时出错:', error);
@@ -265,6 +472,9 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             // 初始化插件状态
             await initializePluginState();
+            
+            // 加载自定义主题
+            await loadCustomThemes();
 
             const currentTab = await checkCurrentTab();
             if (!currentTab) {
@@ -286,9 +496,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 updatePreview();
                 resetPresetButtonStates();
             });
+            
+            // 主题名称输入时实时更新按钮状态
+            themeNameInput.addEventListener('input', updateSaveButtonState);
+            
             applyButton.addEventListener('click', applyCustomTheme);
             resetButton.addEventListener('click', resetTheme);
+            
+            // 新的保存按钮事件
+            saveOnlyButton.addEventListener('click', () => saveCustomTheme(false));
+            saveApplyButton.addEventListener('click', () => saveCustomTheme(true));
 
+            // 主题名称输入框回车保存并应用
+            themeNameInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !saveApplyButton.disabled) {
+                    saveCustomTheme(true);
+                }
+            });
+
+            // 为现有预设按钮添加事件监听器
             presetButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     const presetName = button.dataset.theme;
@@ -302,16 +528,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // 恢复上次使用的主题
             const { enabled } = await chrome.storage.local.get('enabled');
             if (enabled) {
-                const result = await chrome.storage.local.get(['lastTheme', 'lastPreset']);
-                if (result.lastPreset) {
-                    updatePresetButtonStates(result.lastPreset);
-                    await applyPresetTheme(result.lastPreset);
-                } else if (result.lastTheme) {
-                    backgroundColorInput.value = result.lastTheme.background;
-                    textColorInput.value = result.lastTheme.text;
-                    updatePreview();
-                    await applyCustomTheme();
-                }
+                await restoreLastTheme();
             }
         } catch (error) {
             console.error('初始化插件时出错:', error);
