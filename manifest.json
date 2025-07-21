@@ -6,7 +6,8 @@
     "permissions": [
         "activeTab",
         "scripting",
-        "storage"
+        "storage",
+        "tabs"
     ],
     "host_permissions": [
         "https://*.feishu.cn/*",
@@ -16,6 +17,9 @@
     "action": {
         "default_popup": "popup.html",
         "default_title": "飞书文档主题助手"
+    },
+    "background": {
+        "service_worker": "js/background.js"
     },
     "content_scripts": [
         {
