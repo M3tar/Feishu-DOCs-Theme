@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const nameValid = isThemeNameValid();
             
             // 检查是否已达到上限
-            const isLimitReached = count >= 2;
+            const isLimitReached = count >= 6;
             
             // 检查主题名称是否重复
             const themeName = themeNameInput.value.trim();
@@ -99,13 +99,13 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const hintElement = document.querySelector('.save-theme-hint');
             if (isLimitReached) {
-                hintElement.textContent = '已达到自定义主题上限（2个）';
+                hintElement.textContent = '已达到自定义主题上限（6个）';
                 hintElement.style.color = '#ff3b30';
             } else if (isDuplicate && themeName) {
                 hintElement.textContent = '主题名称已存在';
                 hintElement.style.color = '#ff3b30';
             } else {
-                hintElement.textContent = `最多可保存2个自定义主题（已保存${count}个）`;
+                hintElement.textContent = `最多可保存6个自定义主题（已保存${count}个）`;
                 hintElement.style.color = '#86868b';
             }
         } catch (error) {
@@ -131,8 +131,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const customThemes = result.customThemes || {};
             
             // 检查是否已达到上限
-            if (Object.keys(customThemes).length >= 2) {
-                alert('最多只能保存2个自定义主题，请先删除一个主题');
+            if (Object.keys(customThemes).length >= 6) {
+                alert('最多只能保存6个自定义主题，请先删除一个主题');
                 return;
             }
             
