@@ -98,15 +98,17 @@ document.addEventListener('DOMContentLoaded', () => {
             saveApplyButton.disabled = !canSave;
             
             const hintElement = document.querySelector('.save-theme-hint');
-            if (isLimitReached) {
-                hintElement.textContent = '已达到自定义主题上限（6个）';
-                hintElement.style.color = '#ff3b30';
-            } else if (isDuplicate && themeName) {
-                hintElement.textContent = '主题名称已存在';
-                hintElement.style.color = '#ff3b30';
-            } else {
-                hintElement.textContent = `最多可保存6个自定义主题（已保存${count}个）`;
-                hintElement.style.color = '#86868b';
+            if (hintElement) {
+                if (isLimitReached) {
+                    hintElement.textContent = '已达到自定义主题上限（6个）';
+                    hintElement.style.color = '#ff3b30';
+                } else if (isDuplicate && themeName) {
+                    hintElement.textContent = '主题名称已存在';
+                    hintElement.style.color = '#ff3b30';
+                } else {
+                    hintElement.textContent = `最多可保存6个自定义主题（已保存${count}个）`;
+                    hintElement.style.color = '#86868b';
+                }
             }
         } catch (error) {
             console.error('更新保存按钮状态时出错:', error);
@@ -320,10 +322,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // 显示非飞书文档页面的UI
     function showNonFeishuUI() {
         document.body.classList.add('non-feishu');
-        document.querySelector('.container').innerHTML = `
-            <h2>飞书文档主题助手</h2>
-            <p>请在飞书文档页面使用此插件</p>
-        `;
+        const container = document.querySelector('.container');
+        if (container) {
+            container.innerHTML = `
+                <h2>飞书文档主题助手</h2>
+                <p>请在飞书文档页面使用此插件</p>
+            `;
+        }
     }
 
     // 检查content script是否已注入
@@ -331,33 +336,27 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!tab) return false;
         
         try {
-            // 尝试发送ping消息
-            await chrome.tabs.sendMessage(tab.id, { action: 'ping' });
-            return true;
-        } catch (error) {
-            try {
-                // 如果消息发送失败，尝试注入脚本
-                await chrome.scripting.executeScript({
-                    target: { tabId: tab.id },
-                    files: ['js/main.js']
-                });
-                
-                // 注入CSS
-                await chrome.scripting.insertCSS({
-                    target: { tabId: tab.id },
-                    files: ['css/material-colors.min.css', 'css/style.css']
-                });
-                
-                // 等待一小段时间确保脚本加载
-                await new Promise(resolve => setTimeout(resolve, 100));
-                
-                // 再次尝试发送ping消息确认注入成功
-                await chrome.tabs.sendMessage(tab.id, { action: 'ping' });
-                return true;
-            } catch (injectionError) {
-                console.warn('注入脚本时出错:', injectionError);
-                return false;
+            // 尝试发送ping消息，多次重试确保content script已加载
+            let retries = 3;
+            while (retries > 0) {
+                try {
+                    await chrome.tabs.sendMessage(tab.id, { action: 'ping' });
+                    return true;
+                } catch (error) {
+                    retries--;
+                    if (retries > 0) {
+                        // 等待一段时间后重试
+                        await new Promise(resolve => setTimeout(resolve, 300));
+                    }
+                }
             }
+            
+            // 所有重试都失败了，可能页面需要刷新
+            console.warn('无法与content script通信，可能需要刷新页面');
+            return false;
+        } catch (error) {
+            console.warn('检查content script时出错:', error);
+            return false;
         }
     }
 

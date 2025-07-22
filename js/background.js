@@ -17,32 +17,25 @@ async function applyThemeToPage(tabId) {
             return; // 如果插件未启用，不执行任何操作
         }
 
-        // 注入主脚本
-        await chrome.scripting.executeScript({
-            target: { tabId },
-            files: ['js/main.js']
-        });
+        // 等待一小段时间确保content script已加载
+        await new Promise(resolve => setTimeout(resolve, 500));
 
-        // 注入CSS
-        await chrome.scripting.insertCSS({
-            target: { tabId },
-            files: ['css/material-colors.min.css', 'css/style.css']
-        });
-
-        // 等待一小段时间确保脚本加载
-        await new Promise(resolve => setTimeout(resolve, 100));
-
-        // 应用主题
-        if (lastPreset) {
-            await chrome.tabs.sendMessage(tabId, {
-                action: 'applyTheme',
-                preset: lastPreset
-            });
-        } else if (lastTheme) {
-            await chrome.tabs.sendMessage(tabId, {
-                action: 'applyTheme',
-                customTheme: lastTheme
-            });
+        // 尝试应用主题，如果失败可能是因为content script还没准备好
+        try {
+            if (lastPreset) {
+                await chrome.tabs.sendMessage(tabId, {
+                    action: 'applyTheme',
+                    preset: lastPreset
+                });
+            } else if (lastTheme) {
+                await chrome.tabs.sendMessage(tabId, {
+                    action: 'applyTheme',
+                    customTheme: lastTheme
+                });
+            }
+        } catch (error) {
+            // 如果消息发送失败，可能是因为页面还在加载中，这是正常的
+            console.log('主题将在页面完全加载后应用');
         }
     } catch (error) {
         console.error('应用主题时出错:', error);
