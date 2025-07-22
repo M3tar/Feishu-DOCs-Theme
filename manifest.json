@@ -3,6 +3,12 @@
     "name": "Feishu Docs Theme Tuner",
     "version": "1.0",
     "description": "为飞书文档创建自定义主题，支持护眼配色方案",
+    "icons": {
+        "16": "icons/Blue_icon16.png",
+        "48": "icons/Blue_icon48.png",
+        "64": "icons/Blue_icon64.png",
+        "128": "icons/Blue_icon128.png"
+    },
     "permissions": [
         "activeTab",
         "scripting",
