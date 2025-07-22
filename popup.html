@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <title>飞书文档主题助手</title>
     <link rel="stylesheet" href="css/material-colors.min.css">
     <link rel="stylesheet" href="css/popup.css">
+    <link rel="stylesheet" href="css/pickr.monolith.min.css">
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -20,7 +23,7 @@
                 </label>
             </div>
         </div>
-        
+
         <section class="section theme-presets">
             <h3>预设主题</h3>
             <div class="preset-grid">
@@ -55,51 +58,58 @@
         <section class="section color-picker">
             <h3>自定义颜色</h3>
             <div class="color-group">
-                <label for="background-color">
+                <label for="background-color-btn">
                     <span>背景色</span>
                     <span class="color-desc">整体页面背景</span>
                 </label>
-                <input type="color" id="background-color" value="#FDFBF7">
+                <button id="background-color-btn" class="color-btn-custom">
+                    <span class="color-preview-swatch" style="background-color: #FDFBF7;"></span>
+                </button>
             </div>
             <div class="color-group">
-                <label for="text-color">
+                <label for="text-color-btn">
                     <span>文字颜色</span>
                     <span class="color-desc">文档内文字颜色</span>
                 </label>
-                <input type="color" id="text-color" value="#333333">
+                <button id="text-color-btn" class="color-btn-custom">
+                    <span class="color-preview-swatch" style="background-color: #333333;"></span>
+                </button>
             </div>
         </section>
 
-        <section class="section preview">
-            <h3>主题预览</h3>
-            <div class="preview-box">
-                <div class="preview-content">
-                    <h4>飞书文档主题预览</h4>
-                    <p>这是一段示例文本，用于预览主题效果。您可以通过这个预览来确认文字的清晰度和整体的视觉效果。</p>
-                </div>
-            </div>
-            
-            <div class="theme-actions">
-                <div class="theme-name-input">
-                    <label for="theme-name-input">
-                        <span class="label-main">主题名称</span>
-                        <span class="label-desc">（保存时使用）</span>
-                    </label>
-                    <input type="text" id="theme-name-input" placeholder="例如：杏仁拿铁主题" maxlength="10">
-                </div>
-                <div class="action-buttons">
-                    <button id="apply-btn" class="primary-btn">预览主题</button>
-                    <button id="save-only-btn" class="outline-btn">保存主题</button>
-                    <button id="save-apply-btn" class="success-btn">保存并应用</button>
-                </div>
-                <div class="save-theme-hint">最多可保存6个自定义主题</div>
-            </div>
-        </section>
 
-        <div class="actions">
-            <button id="reset-btn">恢复默认</button>
+<section class="section preview">
+    <h3>主题预览</h3>
+    <div class="preview-box">
+        <div class="preview-content">
+            <h4>飞书文档主题预览</h4>
+            <p>这是一段示例文本，用于预览主题效果。您可以通过这个预览来确认文字的清晰度和整体的视觉效果。</p>
         </div>
     </div>
-    <script src="js/popup.js"></script>
+
+    <div class="theme-actions">
+        <div class="theme-name-input">
+            <label for="theme-name-input">
+                <span class="label-main">主题名称</span>
+                <span class="label-desc">（保存时使用）</span>
+            </label>
+            <input type="text" id="theme-name-input" placeholder="例如：杏仁拿铁主题" maxlength="10">
+        </div>
+        <div class="action-buttons">
+            <button id="apply-btn" class="primary-btn">预览主题</button>
+            <button id="save-only-btn" class="outline-btn">保存主题</button>
+            <button id="save-apply-btn" class="success-btn">保存并应用</button>
+        </div>
+        <div class="save-theme-hint">最多可保存6个自定义主题</div>
+    </div>
+</section>
+
+<div class="actions">
+    <button id="reset-btn">恢复默认</button>
+</div>
+</div>
+<script src="js/pickr.min.js"></script>
+<script src="js/popup.js"></script>
 </body>
-</html> 
+
+</html>

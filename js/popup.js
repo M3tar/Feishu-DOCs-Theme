@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const backgroundColorInput = document.getElementById('background-color');
-    const textColorInput = document.getElementById('text-color');
+    const backgroundColorBtn = document.getElementById('background-color-btn');
+    const textColorBtn = document.getElementById('text-color-btn');
+    const backgroundColorSwatch = backgroundColorBtn.querySelector('.color-preview-swatch');
+    const textColorSwatch = textColorBtn.querySelector('.color-preview-swatch');
     const presetButtons = document.querySelectorAll('.preset-btn');
     const presetGrid = document.querySelector('.preset-grid');
     const applyButton = document.getElementById('apply-btn');
@@ -10,6 +12,63 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeNameInput = document.getElementById('theme-name-input');
     const saveOnlyButton = document.getElementById('save-only-btn');
     const saveApplyButton = document.getElementById('save-apply-btn');
+
+    // 存储当前颜色值
+    let currentBackgroundColor = '#FDFBF7';
+    let currentTextColor = '#333333';
+    
+    // 创建颜色选择器实例
+    let backgroundPicker = null;
+    let textPicker = null;
+
+    // 创建Pickr实例
+    function createPickrInstance(el, defaultColor, onChange) {
+        return Pickr.create({
+            el: el,
+            theme: 'monolith',
+            default: defaultColor,
+            swatches: [
+                '#FDFBF7', '#333333', '#FAF5E9', '#FEF9EF', '#F9F2E2', '#6366f1', '#10b981', '#0071e3', '#ff3b30', '#FFD600'
+            ],
+            components: {
+                preview: true,
+                opacity: false,
+                hue: true,
+                interaction: {
+                    hex: true,
+                    input: true,
+                    save: true,
+                    clear: false
+                }
+            }
+        }).on('save', (color) => {
+            const hex = color ? color.toHEXA().toString() : defaultColor;
+            onChange(hex, true);
+        }).on('change', (color) => {
+            const hex = color ? color.toHEXA().toString() : defaultColor;
+            onChange(hex, false);
+        });
+    }
+
+    // 初始化颜色选择器
+    function initializeColorPickers() {
+        backgroundColorSwatch.style.backgroundColor = currentBackgroundColor;
+        textColorSwatch.style.backgroundColor = currentTextColor;
+
+        // Pickr 需要绑定到按钮上
+        backgroundPicker = createPickrInstance(backgroundColorBtn, currentBackgroundColor, (hex, done) => {
+            currentBackgroundColor = hex;
+            backgroundColorSwatch.style.backgroundColor = currentBackgroundColor;
+            updatePreview();
+            if (done) resetPresetButtonStates();
+        });
+        textPicker = createPickrInstance(textColorBtn, currentTextColor, (hex, done) => {
+            currentTextColor = hex;
+            textColorSwatch.style.backgroundColor = currentTextColor;
+            updatePreview();
+            if (done) resetPresetButtonStates();
+        });
+    }
 
     // 初始化插件状态
     async function initializePluginState() {
@@ -151,8 +210,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // 保存主题
             const newTheme = {
                 name: themeName,
-                background: backgroundColorInput.value,
-                text: textColorInput.value
+                background: currentBackgroundColor,
+                text: currentTextColor
             };
             
             customThemes[themeId] = newTheme;
@@ -258,8 +317,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 await applyPresetTheme(result.lastPreset);
             } else if (result.lastTheme) {
                 // 恢复自定义颜色
-                backgroundColorInput.value = result.lastTheme.background;
-                textColorInput.value = result.lastTheme.text;
+                currentBackgroundColor = result.lastTheme.background;
+                currentTextColor = result.lastTheme.text;
+                // 更新颜色选择器
+                if (backgroundPicker) {
+                    backgroundPicker.setColor(currentBackgroundColor);
+                }
+                if (textPicker) {
+                    textPicker.setColor(currentTextColor);
+                }
+                // 更新预览块
+                backgroundColorSwatch.style.backgroundColor = currentBackgroundColor;
+                textColorSwatch.style.backgroundColor = currentTextColor;
                 updatePreview();
                 await applyCustomTheme();
             }
@@ -270,8 +339,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 更新预览
     function updatePreview() {
-        const background = backgroundColorInput.value;
-        const text = textColorInput.value;
+        const background = currentBackgroundColor;
+        const text = currentTextColor;
 
         previewBox.style.setProperty('--preview-bg', background);
         previewBox.style.setProperty('--preview-text', text);
@@ -376,8 +445,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const theme = {
-                background: backgroundColorInput.value,
-                text: textColorInput.value
+                background: currentBackgroundColor,
+                text: currentTextColor
             };
 
             const response = await chrome.tabs.sendMessage(currentTab.id, {
@@ -456,8 +525,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     await chrome.storage.local.remove(['lastTheme', 'lastPreset']);
                 }
                 // 重置自定义颜色输入
-                backgroundColorInput.value = '#FDFBF7';
-                textColorInput.value = '#333333';
+                currentBackgroundColor = '#FDFBF7';
+                currentTextColor = '#333333';
+                // 更新颜色选择器
+                if (backgroundPicker) {
+                    backgroundPicker.setColor(currentBackgroundColor);
+                }
+                if (textPicker) {
+                    textPicker.setColor(currentTextColor);
+                }
+                // 更新预览块
+                backgroundColorSwatch.style.backgroundColor = currentBackgroundColor;
+                textColorSwatch.style.backgroundColor = currentTextColor;
                 updatePreview();
             }
         } catch (error) {
@@ -469,6 +548,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // 初始化插件
     async function initializePlugin() {
         try {
+            // 初始化颜色选择器
+            initializeColorPickers();
+
             // 初始化插件状态
             await initializePluginState();
             
@@ -487,16 +569,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 updatePluginState(enabled);
             });
 
-            backgroundColorInput.addEventListener('input', () => {
-                updatePreview();
-                resetPresetButtonStates();
-            });
-            textColorInput.addEventListener('input', () => {
-                updatePreview();
-                resetPresetButtonStates();
-            });
-            
-            // 主题名称输入时实时更新按钮状态
+            // Pickr 绑定后按钮本身即可弹出，无需额外 click 事件
             themeNameInput.addEventListener('input', updateSaveButtonState);
             
             applyButton.addEventListener('click', applyCustomTheme);

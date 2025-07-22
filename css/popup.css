@@ -246,42 +246,46 @@ h3::before {
 }
 
 /* 基础样式 */
-input[type="color"] {
-    width: 64px;
-    height: 36px;
-    padding: 2px;
-    border: 1px solid #e8e8ed;
+.color-btn-custom {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 1.5px solid #e8e8ed;
     border-radius: 8px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    background: #ffffff;
+    background: #fff;
     outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+    transition: border-color 0.2s, box-shadow 0.2s;
     position: relative;
-    box-sizing: border-box;
-    z-index: 1000;
+    z-index: 10;
 }
-
-/* 针对WebKit浏览器（Chrome）的优化 */
-input[type="color"]::-webkit-color-swatch-wrapper {
-    padding: 0;
-    border: none;
-    border-radius: 4px;
-    overflow: hidden;
+.color-btn-custom:focus,
+.color-btn-custom:hover {
+    border-color: #6366f1;
+    box-shadow: 0 2px 8px rgba(99,102,241,0.08);
 }
-
-input[type="color"]::-webkit-color-swatch {
-    border: none;
-    border-radius: 4px;
+.color-preview-swatch {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: 1px solid #e8e8ed;
+    background: #fff;
+    display: block;
+    transition: background 0.2s, border 0.2s;
 }
 
 /* 焦点和悬停状态 */
-input[type="color"]:focus {
+.color-btn-custom:focus {
     border-color: #0071e3;
     box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
     z-index: 9999;
 }
 
-input[type="color"]:hover {
+.color-btn-custom:hover {
     border-color: #0071e3;
     transform: scale(1.02);
     box-shadow: 0 2px 8px rgba(0, 113, 227, 0.1);
@@ -289,7 +293,7 @@ input[type="color"]:hover {
 
 /* 多屏幕环境适配 */
 @media screen and (min-resolution: 1dppx) {
-    input[type="color"] {
+    .color-btn-custom {
         width: 64px;
         height: 36px;
     }
@@ -297,7 +301,7 @@ input[type="color"]:hover {
 
 /* 高分辨率屏幕适配 */
 @media screen and (min-resolution: 2dppx) {
-    input[type="color"] {
+    .color-btn-custom {
         width: 68px;
         height: 38px;
     }
@@ -305,7 +309,7 @@ input[type="color"]:hover {
 
 /* 外接显示器和大屏幕环境优化 */
 @media screen and (min-width: 1400px) {
-    input[type="color"] {
+    .color-btn-custom {
         width: 70px;
         height: 40px;
         padding: 3px;
@@ -315,13 +319,13 @@ input[type="color"]:hover {
         position: relative;
     }
     
-    .color-group input[type="color"] {
+    .color-group .color-btn-custom {
         position: relative;
         transform-origin: right center;
     }
     
-    .color-group input[type="color"]:focus,
-    .color-group input[type="color"]:active {
+    .color-group .color-btn-custom:focus,
+    .color-group .color-btn-custom:active {
         transform: scale(1);
         z-index: 9999;
     }
